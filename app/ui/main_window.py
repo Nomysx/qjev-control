@@ -4,7 +4,7 @@ from time import monotonic
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Qt, QTimer, Signal
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox, QFileDialog,
                                QFormLayout, QFrame, QGroupBox, QHBoxLayout, QLabel, QMainWindow, QMessageBox,
-                               QPushButton, QScrollArea, QSpinBox, QSplitter,
+                               QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
                                QTabWidget, QVBoxLayout, QWidget)
 
 from app.config import Configuration
@@ -45,6 +45,7 @@ QGroupBox { background: #fafafa; border: 1px solid #a5a5a5; border-radius: 0; ma
 QGroupBox::title { subcontrol-origin: padding; subcontrol-position: top left; left: 9px; top: 7px; color: #454545; background: transparent; padding: 0; }
 QLabel#muted { color: #626262; font-size: 11px; }
 QLabel#readout { font-size: 17px; font-weight: 600; color: #252525; }
+QLabel#status { font-size: 13px; font-weight: 600; color: #252525; background: transparent; }
 QLabel#modelName { color: #555555; font-size: 11px; }
 QLabel#modelHealth { border: 1px solid #999999; padding: 3px 6px; min-width: 30px; font-weight: 700; }
 QLabel#modelHealth[health="checking"] { background: #eeeeee; border-color: #aaaaaa; color: #555555; }
@@ -149,6 +150,18 @@ class MainWindow(QMainWindow):
         self.diagnose_button = QPushButton("Run detector model")
         toolbar.addWidget(self.diagnose_button)
         toolbar.addStretch()
+        self.model_name_label = QLabel(f"Model: {self.config.model}")
+        self.model_name_label.setObjectName("modelName")
+        self.model_name_label.setToolTip(f"Ollama endpoint: {self.config.ollama_url}")
+        toolbar.addWidget(self.model_name_label)
+        self.model_health_indicator = QLabel()
+        self.model_health_indicator.setObjectName("modelHealth")
+        self.model_health_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.model_health_indicator.setMinimumWidth(54)
+        toolbar.addWidget(self.model_health_indicator)
+        self._set_model_health("CHECKING" if self.model_enabled else "OFF",
+                               "Checking whether the configured model is available." if self.model_enabled
+                               else "Model inference is disabled by the startup option.")
         root.addWidget(self._command_bar(toolbar))
 
         use_case = QHBoxLayout()
@@ -174,36 +187,27 @@ class MainWindow(QMainWindow):
         use_case.addWidget(self.follow)
         export = QPushButton("Export run")
         use_case.addWidget(export)
-        use_case.addWidget(self._toolbar_divider())
-        self.model_name_label = QLabel(f"Ollama: {self.config.ollama_url}  |  Model: {self.config.model}")
-        self.model_name_label.setObjectName("modelName")
-        self.model_name_label.setToolTip(f"Ollama endpoint: {self.config.ollama_url}")
-        use_case.addWidget(self.model_name_label)
-        self.model_health_indicator = QLabel()
-        self.model_health_indicator.setObjectName("modelHealth")
-        self.model_health_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.model_health_indicator.setMinimumWidth(54)
-        use_case.addWidget(self.model_health_indicator)
-        self._set_model_health("CHECKING" if self.model_enabled else "OFF",
-                               "Checking whether the configured model is available." if self.model_enabled
-                               else "Model inference is disabled by the startup option.")
-        use_case.addStretch()
+        self.readouts = {}
+        # values share the rest of the bar by fixed ratios, so the bar does not shift while numbers change
+        for key, caption, tip, stretch in (("time", "Time", "Simulation time", 2),
+                                           ("mode", "Mode", "Supervisory mode", 3),
+                                           ("speed", "Speed", "Encoder / predicted speed", 4),
+                                           ("current", "Current", "Measured current / command voltage", 4),
+                                           ("truth", "Fault", "Injected fault (ground truth)", 6)):
+            use_case.addWidget(self._toolbar_divider())
+            name = QLabel(caption)
+            name.setObjectName("muted")
+            value = QLabel("--")
+            value.setObjectName("status")
+            for label in (name, value):
+                label.setToolTip(tip)
+            value.setMinimumWidth(50)
+            value.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+            use_case.addWidget(name)
+            use_case.addWidget(value, stretch)
+            self.readouts[key] = value
         root.addWidget(self._command_bar(use_case))
 
-        self.readouts = {}
-        status_row = QHBoxLayout()
-        status_row.setSpacing(7)
-        for key, caption in (("time", "TIME"), ("mode", "MODE"),
-                             ("speed", "ENCODER / PREDICTED"), ("current", "CURRENT / COMMAND"),
-                             ("truth", "FAULT TYPE")):
-            box = QGroupBox(caption)
-            line = QVBoxLayout(box)
-            label = QLabel("--")
-            label.setObjectName("readout")
-            line.addWidget(label)
-            self.readouts[key] = label
-            status_row.addWidget(box)
-        root.addLayout(status_row)
         split = QSplitter(Qt.Orientation.Horizontal)
         root.addWidget(split, 1)
         split.addWidget(self._controls())
@@ -509,7 +513,7 @@ class MainWindow(QMainWindow):
         self.pause_button.setEnabled(self.running)
         self.apply_gains.setEnabled(not self.running)
         self.diagnose_button.setEnabled(self.model_enabled and not self.service.busy and bool(row))
-        self.readouts["time"].setText(f"{s.time:7.2f} s")
+        self.readouts["time"].setText(f"{s.time:.2f} s")
         self.readouts["mode"].setText(s.mode)
         self.readouts["truth"].setText(FAULT_NAMES[s.truth])
         if row:
