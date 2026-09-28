@@ -188,15 +188,3 @@ class QJevOllamaClient:
                 distributions.append(self._normalize(masses))
             scores = {key: sum(d[key] for d in distributions) / len(distributions) for key in distributions[0]}
         return ModelDecision(scores, raw, monotonic() - started, self.model, self.readout)
-
-    def choice(self, state: str, question: str, options: list[dict[str, str]]) -> dict:
-        result = self.classify(state, question, options)
-        return {"selected": result.selected, "confidence": result.scores[result.selected],
-                "distribution": result.scores}
-
-
-class SemIfOllamaClient(QJevOllamaClient):
-    """Compatibility entry point for the original experiment's Yes/No readout."""
-
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "qjev-0.8b:latest"):
-        super().__init__(base_url, model, timeout=30.0, readout="legacy_yes_no")

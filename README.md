@@ -51,15 +51,13 @@ Model: qjev-0.8b:latest
 Raw prompt, non-streaming response, one generated token, token logprobs
 ```
 
-The new workstation uses explicit IPv4 loopback to avoid the measured `localhost` connection fallback delay on this Windows installation. It reaches the same local Ollama service. The legacy client retains its original `localhost` default.
+The new workstation uses explicit IPv4 loopback to avoid the measured `localhost` connection fallback delay on this Windows installation. It reaches the same local Ollama service.
 
 Ollama must be running and the model must already be installed. This project does not download weights or install Ollama. Check the local model with `ollama list`. Connection settings can be changed at launch:
 
 ```powershell
 python main.py --ollama-url http://127.0.0.1:11434 --model qjev-0.8b:latest
 ```
-
-The existing editable-example application remains available with `python qjev_test.py`. Its client now imports the reusable implementation from `app/diagnostics/qjev_client.py`.
 
 ## Reused integration and the necessary prompt correction
 
@@ -206,9 +204,6 @@ app/diagnostics/                features, detector, Ollama client, worker, stabi
 app/experiments/                scenarios, metrics, spooled history/export
 app/ui/                         PySide6 workstation, pyqtgraph signals, score inspection
 app/ui/explain_panel.py         How it works tab; diagrams.py and equations.py supply its content
-qjev_test.py                    original example launcher using the shared legacy client
-qjev_examples.py / .json        original editable example storage
-qjev_results.py                original Tkinter example viewer
 ```
 
 The application has no mock inference mode. Python-level verification can inject test doubles without exposing fabricated results to application users. Visual review is left to the user.
