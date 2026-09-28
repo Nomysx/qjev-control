@@ -30,7 +30,7 @@ class SignalPlots(QWidget):
         self.view_selector.addItem("All plots", None)
         view_row.addWidget(self.view_selector)
         view_row.addStretch()
-        hint = QLabel("Y axes fit the visible window. Zoom a plot to hold its scale; double-click to fit again.")
+        hint = QLabel("Double-click a plot to refit its Y axis.")
         hint.setObjectName("muted")
         view_row.addWidget(hint)
         layout.addLayout(view_row)

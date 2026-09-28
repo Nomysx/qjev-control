@@ -20,13 +20,10 @@ from app.ui.equations import STYLE, motor_equations, room_equations
 
 # plain-language meaning of every request field sent to Ollama
 REQUEST_MEANINGS = {
-    "model": "Ollama model tag that answers.",
-    "raw": "The prompt is sent verbatim; Ollama adds no chat template of its own.",
-    "stream": "One complete JSON reply instead of a token stream.",
-    "logprobs": "Return the log-probability of the generated token.",
-    "top_logprobs": "How many most likely alternative tokens come back with their log-probabilities.",
-    "num_predict": "Generate exactly this many tokens: one answer letter.",
-    "temperature": "0 = deterministic; no random sampling.",
+    "raw": "Sent verbatim, no chat template added",
+    "top_logprobs": "Alternative tokens returned",
+    "num_predict": "One answer token",
+    "temperature": "Deterministic",
 }
 
 
@@ -94,28 +91,28 @@ class PromptView(QScrollArea):
         top = LETTER_TOP_LOGPROBS if letters else YES_NO_TOP_LOGPROBS
         requests = 2 if letters else len(options)
 
-        settings = [("endpoint", f"POST {escape(client.endpoint)}", "Local Ollama HTTP API."),
-                    ("timeout", f"{client.timeout:g} s", "A slower reply is an error; no decision is produced.")]
+        settings = [("endpoint", f"POST {escape(client.endpoint)}", ""),
+                    ("timeout", f"{client.timeout:g} s", "No reply in time: no decision")]
         for key, value in client.payload("", top).items():
             for name, item in (value.items() if isinstance(value, dict) else [(key, value)]):
                 if name != "prompt":
-                    settings.append((name, escape(json.dumps(item)), REQUEST_MEANINGS.get(name, "")))
+                    settings.append((name, escape(item if isinstance(item, str) else json.dumps(item)),
+                                     REQUEST_MEANINGS.get(name, "")))
         settings.append(("requests per decision", str(requests),
-                         "Given and reversed option order." if letters else "One Yes/No question per option."))
+                         "Given and reversed option order" if letters else "One Yes/No question per option"))
 
         if letters:
             first, second = (option_letters(ordering) for ordering in client.orderings(options))
             by_id = ({key: letter for letter, key in first.items()}, {key: letter for letter, key in second.items()})
             option_rows = [(f"<b>{by_id[0][o['id']]}</b>", f"<b>{by_id[1][o['id']]}</b>", _identifier(o["id"]),
                             escape(o["description"])) for o in options]
-            option_table = _table(("Letter in prompt 1", "Letter in prompt 2", "Answer id", "Option text shown to the model"),
+            option_table = _table(("Prompt 1", "Prompt 2", "Id", "Text"),
                                   option_rows)
             instruction = _text(f"<i>{escape(SYSTEM_INSTRUCTION)}</i>")
         else:
-            option_table = _table(("Answer id", "Candidate text"), [(_identifier(o["id"]), escape(o["description"]))
+            option_table = _table(("Id", "Text"), [(_identifier(o["id"]), escape(o["description"]))
                                                                      for o in options])
-            instruction = _text("None. The legacy readout sends plain text ending in "
-                                "<i>Is this the best match? Answer (Yes/No):</i>")
+            instruction = _text("None")
 
         self.state_text = QPlainTextEdit()
         self.state_text.setReadOnly(True)
@@ -132,20 +129,12 @@ class PromptView(QScrollArea):
             self.prompt_views.append(view)
 
         if letters:
-            steps = [f"Build prompt 1 with the options labelled A, B, C … as listed above, and prompt 2 with the order "
-                     "reversed. Averaging both cancels any preference for a letter position.",
-                     f"Send each prompt. The model generates one token; Ollama returns the {top} most likely tokens "
-                     "with their log-probabilities.",
-                     "For each option add exp(log-probability) of the tokens equal to its letter → token mass m.",
-                     "Divide each prompt's masses by their sum, then average the two prompts → one score per option.",
-                     "The highest score is the model's answer. A missing letter, HTTP error or timeout gives no "
-                     "decision - no score is ever invented.", answer_use]
+            steps = ["Prompt 2 reverses the option order to cancel letter-position bias.",
+                     "A missing letter, HTTP error or timeout gives no decision.", answer_use]
         else:
-            steps = [f"Send one prompt per option; Ollama returns the {top} most likely next tokens.",
-                     "Add the probability mass of the tokens Yes / True for that option.",
-                     "Divide by the sum over all options → one score per option. A missing Yes/True token is an error.",
-                     answer_use]
-        how = [_text("<ol>" + "".join(f"<li>{step}</li>" for step in steps) + "</ol>")]
+            steps = [f"One prompt per option; score = mass of Yes/True tokens in the top {top}, normalized over options.",
+                     "A missing Yes/True token, HTTP error or timeout gives no decision.", answer_use]
+        how = [_text("<ul>" + "".join(f"<li>{step}</li>" for step in steps) + "</ul>")]
         if letters:
             how.insert(0, BlockDiagram(*readout(top)))
 
@@ -154,14 +143,10 @@ class PromptView(QScrollArea):
             ("2  REQUEST SETTINGS", [_text(_table(("Setting", "Value", "Meaning"), settings))]),
             ("3  SYSTEM INSTRUCTION", [instruction]),
             ("4  QUESTION", [_text(f"<i>{escape(question)}</i>")]),
-            ("5  OPTIONS - the answers the model can choose", [_text(option_table)]),
-            ("6  STATE - observations written as text", [self.state_source, self.state_text]),
-            ("7  HOW THE ANSWER IS READ", how),
-            ("8  EXACT PROMPT TEXT - byte for byte what is sent", [
-                _note("&lt;|im_start|&gt; / &lt;|im_end|&gt; mark the system, user and assistant turns of the chat "
-                      "format. The empty &lt;think&gt;&lt;/think&gt; block closes the reasoning section, so the next "
-                      "generated token is the answer." if letters else "Each tab is one request."),
-                self.prompt_tabs]),
+            ("5  OPTIONS", [_text(option_table)]),
+            ("6  STATE", [self.state_source, self.state_text]),
+            ("7  READOUT", how),
+            ("8  PROMPT TEXT", [self.prompt_tabs]),
         ])
         self.setWidgetResizable(True)
         self.setWidget(page)
@@ -189,31 +174,29 @@ class ExplainPanel(QWidget):
         self.motor_chain = BlockDiagram(*diagnostic_chain(config))
         self.motor_timing = _text()
         self.tabs.addTab(_page([
-            ("1  CONTROL LOOP - what physically happens", [self.motor_loop]),
-            ("2  DIAGNOSTIC CHAIN - runs beside the loop and never feeds back into it", [self.motor_chain]),
+            ("1  CONTROL LOOP", [self.motor_loop]),
+            ("2  DIAGNOSTIC CHAIN", [self.motor_chain]),
             ("3  TIMING", [self.motor_timing]),
         ]), "Motor: signal flow")
         self.motor_formulas = _browser()
         self.tabs.addTab(self.motor_formulas, "Motor: equations")
         self.motor_prompt = PromptView(
             motor_client, QUESTION, HYPOTHESES,
-            "Fault isolation. When the detector reports an anomaly (and twice while healthy, as a baseline), the "
-            "latest residual features are described in sentences and the model picks the fault hypothesis that best "
-            "explains them. The model never touches the motor control loop.",
-            "Scores go to the diagnosis filter (EMA, margin and persistence) before a diagnosis is accepted.")
+            "Fault isolation: picks the fault hypothesis that best explains the residual features. Requested on "
+            "detector anomalies and twice while healthy. Does not act on the motor.",
+            "Scores go to the diagnosis filter.")
         self.tabs.addTab(self.motor_prompt, "Motor: model prompt")
 
         self.room_loop = BlockDiagram(*room_loop(RoomSettings(), 30))
         self.tabs.addTab(_page([
-            ("1  CONTROL LOOP - the language model is the controller", [self.room_loop]),
+            ("1  CONTROL LOOP", [self.room_loop]),
         ]), "Room: signal flow")
         self.room_formulas = _browser()
         self.tabs.addTab(self.room_formulas, "Room: equations")
         self.room_prompt = PromptView(
             room_client, HEATER_QUESTION, HEATER_OPTIONS,
-            "Bang-bang temperature control. The model receives the room state and the switching rule, and chooses "
-            "the heater command.", "The option with the highest score is applied to the heater directly, even if it "
-            "breaks the rule.")
+            "Bang-bang controller: chooses heater ON or OFF every control interval.",
+            "The highest score is applied to the heater, even if it breaks the rule.")
         self.tabs.addTab(self.room_prompt, "Room: model prompt")
 
     def refresh(self, motor, room, room_interval: float) -> None:
@@ -248,18 +231,16 @@ class ExplainPanel(QWidget):
                 "score": f"{motor.detector.score:.2f}", "top_score": f"top {top:.0%}" if math.isfinite(top) else "",
                 "diagnosis": FAULT_NAMES.get(motor.diagnosis.active, "unresolved")})
         if motor.last_request_time is not None:
-            self.motor_prompt.show_state(motor.last_context, f"Last state sent to the model, captured at simulated "
-                                                             f"t = {motor.last_request_time:.2f} s.")
+            self.motor_prompt.show_state(motor.last_context, f"Sent at t = {motor.last_request_time:.2f} s")
         elif motor.last_features:
             self.motor_prompt.show_state(diagnostic_context(motor.last_features),
-                                         f"Preview from the latest features at t = {motor.time:.2f} s. Nothing has been sent yet.")
+                                         f"Preview at t = {motor.time:.2f} s, not sent yet")
         else:
-            self.motor_prompt.show_state("", "Start the motor use case to see the state text the model receives.")
+            self.motor_prompt.show_state("", "Start the motor use case")
 
         self.room_loop.set_values({
             "target": f"{room.settings.target:.1f} °C", "heater": "ON" if room.heater else "OFF",
             "power": f"{room.settings.heater_watts if room.heater else 0:.0f} W",
             "disturbance": f"{room.disturbance_watts:+.0f} W" if room.disturbance_watts else "",
             "loss": f"{room.loss_watts:.0f} W", "temperature": f"{room.temperature:.2f} °C"})
-        self.room_prompt.show_state(room.context(), f"Room state at t = {room.time / 60:.2f} min. The next decision "
-                                                    "request contains exactly this text.")
+        self.room_prompt.show_state(room.context(), f"At t = {room.time / 60:.2f} min, sent at the next decision")

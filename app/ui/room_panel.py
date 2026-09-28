@@ -136,7 +136,7 @@ class RoomPanel(QWidget):
         self.view.addItems(["All plots", "Temperature", "Heater ON / OFF", "Heat flow"])
         view_row.addWidget(self.view)
         view_row.addStretch()
-        hint = QLabel("Y axes fit the visible hour. Zoom a plot to hold its scale; double-click to fit again.")
+        hint = QLabel("Double-click a plot to refit its Y axis.")
         hint.setObjectName("muted")
         view_row.addWidget(hint)
         chart_layout.addLayout(view_row)

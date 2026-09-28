@@ -189,7 +189,7 @@ def motor_loop(config: Configuration) -> tuple[tuple[float, float], list[Block],
               930, 110, 170, 90),
         Block("sensors", f"<b>Sensors</b> ({config.timing.control_hz} Hz)<br>encoder ω<sub>m</sub>, current i<sub>m</sub>"
                          "<br>+ Gaussian noise", 750, 300, 190, 70, "sensor"),
-        Block("faults", "<b>Fault injector</b> (Faults tab or use case schedule)", 730, 10, 370, 42, "fault"),
+        Block("faults", "<b>Fault injector</b>", 730, 10, 370, 42, "fault"),
     ]
     links = [
         Link(((0, 155), "ramp.w"), "target <i>n</i>*", (45, 150), value="target"),
@@ -214,14 +214,13 @@ def motor_loop(config: Configuration) -> tuple[tuple[float, float], list[Block],
 def diagnostic_chain(config: Configuration) -> tuple[tuple[float, float], list[Block], list[Link]]:
     """Residual generation, detection and model-based isolation running beside the control loop."""
     blocks = [
-        Block("predictor", "<b>Nominal predictor</b><br>same motor equations,<br>nominal parameters,<br>"
-                           "no measurement correction<br>(observer gain K = 0)", 80, 35, 210, 120),
+        Block("predictor", "<b>Nominal predictor</b><br>nominal motor model<br>no correction (K = 0)", 80, 35, 210, 120),
         Block("sum", "<b>Σ</b>", 334, 79, 32, 32, "sum"),
         Block("features", f"<b>Feature extractor</b><br>{config.timing.feature_window:g} s window, "
                           f"{config.timing.feature_hz} Hz<br>mean, RMS, std, trend,<br>energy balances", 440, 45, 180, 100),
         Block("detector", "<b>Anomaly detector</b><br>score S from residual<br>statistics; alarm<br>when S ≥ 1",
               680, 45, 180, 100),
-        Block("mode", "<b>Supervisory mode</b><br>advisory only;<br>never changes<br>the actuator", 930, 45, 180, 100),
+        Block("mode", "<b>Supervisory mode</b><br>advisory only", 930, 45, 180, 100),
         Block("context", "<b>Context builder</b><br>features → plain<br>sentences<br>(no ground truth)",
               440, 225, 180, 90),
         Block("model", f"<b>QJev language model</b><br>{config.model}<br>chooses 1 of 9<br>fault hypotheses",
@@ -252,12 +251,12 @@ def room_loop(settings: RoomSettings, interval: float) -> tuple[tuple[float, flo
         Block("context", "<b>Prompt builder</b><br>temperature, thresholds,<br>previous heater state", 130, 115, 180, 90),
         Block("model", f"<b>QJev language model</b><br>answers ON or OFF<br>every {interval:g} s", 380, 110, 180, 100,
               "model"),
-        Block("heater", f"<b>Heater</b><br>{settings.heater_watts / 1000:g} kW; command held<br>until next decision",
+        Block("heater", f"<b>Heater</b><br>{settings.heater_watts / 1000:g} kW",
               630, 115, 160, 90),
         Block("sum", "<b>Σ</b>", 844, 144, 32, 32, "sum"),
         Block("room", "<b>Room air + walls</b><br>thermal capacity C<br>C·dT/dt = net power", 930, 115, 170, 90),
         Block("loss", "<b>Heat loss</b><br>G·(T - T<sub>out</sub>)<br>×4 when window open", 930, 245, 170, 70),
-        Block("thermometer", "<b>Thermometer</b><br>reads T exactly", 560, 330, 170, 60, "sensor"),
+        Block("thermometer", "<b>Thermometer</b>", 560, 330, 170, 60, "sensor"),
     ]
     links = [
         Link(((0, 160), "context.w"), "desired T*<br>band ±δ", (62, 155), value="target"),
