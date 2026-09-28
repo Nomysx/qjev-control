@@ -41,8 +41,8 @@ class _ModelCheckWorker(QRunnable):
 STYLE = """
 QMainWindow, QWidget { background: #f3f3f3; color: #222222; font-family: 'Segoe UI'; font-size: 12px; }
 QFrame#commandBar { background: #fafafa; border: 1px solid #b6b6b6; }
-QGroupBox { background: #fafafa; border: 1px solid #a5a5a5; border-radius: 0; margin-top: 13px; padding: 10px 8px 8px; font-weight: 600; }
-QGroupBox::title { subcontrol-origin: margin; left: 8px; color: #454545; background: #f3f3f3; padding: 0 4px; }
+QGroupBox { background: #fafafa; border: 1px solid #a5a5a5; border-radius: 0; margin-top: 0; padding: 26px 8px 8px; font-weight: 600; }
+QGroupBox::title { subcontrol-origin: padding; subcontrol-position: top left; left: 9px; top: 7px; color: #454545; background: transparent; padding: 0; }
 QLabel#muted { color: #626262; font-size: 11px; }
 QLabel#readout { font-size: 17px; font-weight: 600; color: #252525; }
 QLabel#modelName { color: #555555; font-size: 11px; }
