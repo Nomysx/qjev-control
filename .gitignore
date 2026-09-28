@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Legacy editable-example tool, not part of the control lab
+qjev_test.py
+qjev_examples.py
+qjev_examples.json
+qjev_results.py
+
+# Run exports
+*.csv
+*.jsonl
+motor_run*.json
