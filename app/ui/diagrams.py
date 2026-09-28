@@ -200,7 +200,7 @@ def motor_loop(config: Configuration) -> tuple[tuple[float, float], list[Block],
         Link(("actuator.e", "plant.w"), "u<sub>a</sub>", (895, 150), value="applied"),
         Link(("plant.e", (1170, 155), (1170, 320), (940, 320)), "ω, i<br>(true)", (1135, 150), value="true_speed"),
         Link(("sensors.w", (265, 335), "sum.s"), "measured speed ω<sub>m</sub>", (480, 330), value="measured_speed",
-             sign="−"),
+             sign="-"),
         Link(((795, 52), "actuator.n"), "loss / stuck", (802, 86), "right", dashed=True),
         Link(((1015, 52), "plant.n"), "load, friction,<br>resistance", (1022, 81), "right", dashed=True),
         Link(("faults.e", (1190, 31), (1190, 350), (940, 350)), "bias, noise, corruption", (1065, 354), "below",
@@ -231,7 +231,7 @@ def diagnostic_chain(config: Configuration) -> tuple[tuple[float, float], list[B
     ]
     links = [
         Link(((0, 95), "predictor.w"), "u<sub>cmd</sub>", (40, 90), value="command"),
-        Link(("predictor.e", "sum.w"), "ŷ", (312, 90), sign="−"),
+        Link(("predictor.e", "sum.w"), "ŷ", (312, 90), sign="-"),
         Link(((350, 0), "sum.n"), "y<sub>m</sub> = (ω<sub>m</sub>, i<sub>m</sub>)", (358, 28), "right", sign="+"),
         Link(("sum.e", "features.w"), "residual r", (403, 90), value="residual"),
         Link(("features.e", "detector.w"), "features", (650, 90)),
@@ -256,7 +256,7 @@ def room_loop(settings: RoomSettings, interval: float) -> tuple[tuple[float, flo
               630, 115, 160, 90),
         Block("sum", "<b>Σ</b>", 844, 144, 32, 32, "sum"),
         Block("room", "<b>Room air + walls</b><br>thermal capacity C<br>C·dT/dt = net power", 930, 115, 170, 90),
-        Block("loss", "<b>Heat loss</b><br>G·(T − T<sub>out</sub>)<br>×4 when window open", 930, 245, 170, 70),
+        Block("loss", "<b>Heat loss</b><br>G·(T - T<sub>out</sub>)<br>×4 when window open", 930, 245, 170, 70),
         Block("thermometer", "<b>Thermometer</b><br>reads T exactly", 560, 330, 170, 60, "sensor"),
     ]
     links = [
@@ -269,7 +269,7 @@ def room_loop(settings: RoomSettings, interval: float) -> tuple[tuple[float, flo
         Link(("sum.e", "room.w"), "P<sub>net</sub>", (903, 155)),
         Link(("room.e", (1180, 160), (1180, 360), "thermometer.e"), "T", (1140, 155), value="temperature"),
         Link(((1180, 280), "loss.e"), junction=True),
-        Link(("loss.w", (860, 280), "sum.s"), "P<sub>loss</sub>", (854, 240), "left", value="loss", sign="−"),
+        Link(("loss.w", (860, 280), "sum.s"), "P<sub>loss</sub>", (854, 240), "left", value="loss", sign="-"),
         Link(("thermometer.w", (220, 360), "context.s"), "measured T", (390, 355)),
     ]
     return (1200, 400), blocks, links

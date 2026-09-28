@@ -230,7 +230,7 @@ class MainWindow(QMainWindow):
         self.room = RoomPanel(self.config, self.model_enabled)
         self.room.model_health.connect(self._set_model_health)
         self.room.set_model_health(self.model_health_indicator.text(), self.model_health_indicator.toolTip())
-        self.sections.addTab(self.room, "Room temperature — Bang-bang")
+        self.sections.addTab(self.room, "Room temperature - Bang-bang")
         self.explain = ExplainPanel(self.service.client, self.room.service.client, self.config)
         self.sections.addTab(self.explain, "How it works")
         self.sections.currentChanged.connect(self._section_changed)

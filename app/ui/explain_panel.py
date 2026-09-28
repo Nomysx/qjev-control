@@ -139,7 +139,7 @@ class PromptView(QScrollArea):
                      "For each option add exp(log-probability) of the tokens equal to its letter → token mass m.",
                      "Divide each prompt's masses by their sum, then average the two prompts → one score per option.",
                      "The highest score is the model's answer. A missing letter, HTTP error or timeout gives no "
-                     "decision — no score is ever invented.", answer_use]
+                     "decision - no score is ever invented.", answer_use]
         else:
             steps = [f"Send one prompt per option; Ollama returns the {top} most likely next tokens.",
                      "Add the probability mass of the tokens Yes / True for that option.",
@@ -154,10 +154,10 @@ class PromptView(QScrollArea):
             ("2  REQUEST SETTINGS", [_text(_table(("Setting", "Value", "Meaning"), settings))]),
             ("3  SYSTEM INSTRUCTION", [instruction]),
             ("4  QUESTION", [_text(f"<i>{escape(question)}</i>")]),
-            ("5  OPTIONS — the answers the model can choose", [_text(option_table)]),
-            ("6  STATE — observations written as text", [self.state_source, self.state_text]),
+            ("5  OPTIONS - the answers the model can choose", [_text(option_table)]),
+            ("6  STATE - observations written as text", [self.state_source, self.state_text]),
             ("7  HOW THE ANSWER IS READ", how),
-            ("8  EXACT PROMPT TEXT — byte for byte what is sent", [
+            ("8  EXACT PROMPT TEXT - byte for byte what is sent", [
                 _note("&lt;|im_start|&gt; / &lt;|im_end|&gt; mark the system, user and assistant turns of the chat "
                       "format. The empty &lt;think&gt;&lt;/think&gt; block closes the reasoning section, so the next "
                       "generated token is the answer." if letters else "Each tab is one request."),
@@ -189,8 +189,8 @@ class ExplainPanel(QWidget):
         self.motor_chain = BlockDiagram(*diagnostic_chain(config))
         self.motor_timing = _text()
         self.tabs.addTab(_page([
-            ("1  CONTROL LOOP — what physically happens", [self.motor_loop]),
-            ("2  DIAGNOSTIC CHAIN — runs beside the loop and never feeds back into it", [self.motor_chain]),
+            ("1  CONTROL LOOP - what physically happens", [self.motor_loop]),
+            ("2  DIAGNOSTIC CHAIN - runs beside the loop and never feeds back into it", [self.motor_chain]),
             ("3  TIMING", [self.motor_timing]),
         ]), "Motor: signal flow")
         self.motor_formulas = _browser()
@@ -205,7 +205,7 @@ class ExplainPanel(QWidget):
 
         self.room_loop = BlockDiagram(*room_loop(RoomSettings(), 30))
         self.tabs.addTab(_page([
-            ("1  CONTROL LOOP — the language model is the controller", [self.room_loop]),
+            ("1  CONTROL LOOP - the language model is the controller", [self.room_loop]),
         ]), "Room: signal flow")
         self.room_formulas = _browser()
         self.tabs.addTab(self.room_formulas, "Room: equations")

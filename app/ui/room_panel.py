@@ -257,7 +257,7 @@ class RoomPanel(QWidget):
         kind = self.fault.currentData()
         self.amount.setEnabled(kind != "window")
         self.duration.setEnabled(kind == "pulse")
-        self.amount_label.setText("Temperature change" if kind == "spike" else "Extra heat (+/−)")
+        self.amount_label.setText("Temperature change" if kind == "spike" else "Extra heat (+/-)")
         self.amount.setRange(-15 if kind == "spike" else -5, 15 if kind == "spike" else 5)
         self.amount.setSuffix(" °C" if kind == "spike" else " kW")
         self.amount.setValue(-3 if kind == "spike" else -1)
@@ -305,7 +305,7 @@ class RoomPanel(QWidget):
             if reply.error or reply.decision is None:
                 self.running = False
                 self.engine.command("off")
-                self.state = "Model error — paused"
+                self.state = "Model error - paused"
                 self._event(reply.error or "No model decision")
                 self.model_health.emit("NOK", reply.error or "No model decision")
             else:
