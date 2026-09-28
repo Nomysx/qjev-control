@@ -36,6 +36,7 @@ class SignalPlots(QWidget):
         layout.addLayout(view_row)
         layout.addWidget(self.canvas)
         self.plots, self.curves, self.scalers = {}, {}, {}
+        self.syncing_x = False
         self.plot_positions = {}
         self.expanded_plot = None
         specifications = [
@@ -65,8 +66,8 @@ class SignalPlots(QWidget):
                            brush=pg.mkBrush(255, 255, 255, 235), pen=pg.mkPen("#bdbdbd"))
             plot.setMenuEnabled(False)
             plot.setMouseEnabled(x=True, y=True)
-            if key != "speed":
-                plot.setXLink(self.plots["speed"])
+            # pyqtgraph's setXLink aligns plots by screen position, which shifts the half-width plots in time
+            plot.vb.sigXRangeChanged.connect(self._x_range_changed)
             self.plots[key] = plot
             if key in SCALING:
                 min_span, include = SCALING[key]
@@ -110,6 +111,20 @@ class SignalPlots(QWidget):
         grid.addItem(self.plots[selected], row=0, col=0)
         self.expanded_plot = selected
 
+    def _x_range_changed(self, view_box, x_range) -> None:
+        if not self.syncing_x:
+            self.set_x_range(*x_range)
+
+    def set_x_range(self, low: float, high: float) -> None:
+        """Show the same time window on every plot."""
+        self.syncing_x = True
+        try:
+            for plot in self.plots.values():
+                if plot.vb.viewRange()[0] != [low, high]:
+                    plot.setXRange(low, high, padding=0)
+        finally:
+            self.syncing_x = False
+
     def restore_scaling(self) -> None:
         for scaler in self.scalers.values():
             scaler.restore()
@@ -142,7 +157,7 @@ class SignalPlots(QWidget):
         for key, curve in self.curves.items():
             curve.setData(times, columns[key])
         if follow:
-            self.plots["speed"].setXRange(max(0, simulation.time - window), max(window, simulation.time), padding=0)
+            self.set_x_range(max(0, simulation.time - window), max(window, simulation.time))
         for scaler in self.scalers.values():
             scaler.fit(times, columns)
         for event in simulation.events[self.event_count:]:
