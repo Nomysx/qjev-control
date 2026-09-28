@@ -5,6 +5,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from app.ui.autoscale import YAutoRange, plot_at
+from app.ui.axes import bracket_axes
 
 COLORS = {"cyan": "#2878b5", "blue": "#687b91", "amber": "#b66a08", "green": "#2d7c4b", "muted": "#747474"}
 # y fitting per plot: (minimum visible span, values kept in view); the model score keeps a fixed 0-1 axis
@@ -54,7 +55,7 @@ class SignalPlots(QWidget):
              [("model_top_score", "Latest model top score", "muted"), ("diagnosis_score", "Accepted EMA score", "green")]),
         ]
         for key, title, label, units, row, col, span, lines in specifications:
-            plot = self.canvas.addPlot(row=row, col=col, colspan=span, title=title)
+            plot = self.canvas.addPlot(row=row, col=col, colspan=span, title=title, axisItems=bracket_axes())
             self.plot_positions[key] = (row, col, 1, span)
             self.view_selector.addItem(title.split("  ", 1)[1].title(), key)
             plot.setLabel("left", label, units=units)

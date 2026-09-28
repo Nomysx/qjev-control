@@ -323,7 +323,7 @@ class MainWindow(QMainWindow):
         self.persistent.setChecked(True)
         self.duration.setEnabled(False)
         self.persistent.toggled.connect(lambda value: self.duration.setEnabled(not value))
-        for label, control in (("Fault", self.fault_type), ("Severity (0-1)", self.severity),
+        for label, control in (("Fault", self.fault_type), ("Severity [0-1]", self.severity),
                                ("Schedule delay", self.delay), ("Duration", self.duration),
                                ("Ramp", self.ramp), ("", self.persistent)):
             fault_form.addRow(label, control)
@@ -340,22 +340,22 @@ class MainWindow(QMainWindow):
         plant_page = QWidget()
         plant_form = QFormLayout(plant_page)
         self.parameters = {}
-        entries = [("inertia", "J (kg m2)", 0.005, 0.2, 0.005, 3),
-                   ("inductance", "L (H)", 0.01, 0.5, 0.01, 3),
-                   ("resistance", "R (ohm)", 0.1, 3, 0.1, 2),
-                   ("torque_constant", "Kt (N m/A)", 0.02, 0.5, 0.01, 3),
-                   ("back_emf", "Ke (V s/rad)", 0.02, 0.5, 0.01, 3),
-                   ("friction", "b (N m s/rad)", 0.0001, 0.04, 0.001, 4),
-                   ("load_torque", "Load (N m)", 0.01, 3, 0.05, 2),
-                   ("supply_voltage", "Supply (V)", 12, 96, 1, 1)]
+        entries = [("inertia", "J [kg m2]", 0.005, 0.2, 0.005, 3),
+                   ("inductance", "L [H]", 0.01, 0.5, 0.01, 3),
+                   ("resistance", "R [ohm]", 0.1, 3, 0.1, 2),
+                   ("torque_constant", "Kt [N m/A]", 0.02, 0.5, 0.01, 3),
+                   ("back_emf", "Ke [V s/rad]", 0.02, 0.5, 0.01, 3),
+                   ("friction", "b [N m s/rad]", 0.0001, 0.04, 0.001, 4),
+                   ("load_torque", "Load [N m]", 0.01, 3, 0.05, 2),
+                   ("supply_voltage", "Supply [V]", 12, 96, 1, 1)]
         for key, label, low, high, step, decimals in entries:
             control = spin(getattr(self.config.plant, key), low, high, step, decimals)
             self.parameters[key] = control
             plant_form.addRow(label, control)
         self.kp = spin(self.config.controller.kp, 0, 3, 0.01, 3)
         self.ki = spin(self.config.controller.ki, 0, 10, 0.1, 3)
-        plant_form.addRow("PI Kp (V s/rad)", self.kp)
-        plant_form.addRow("PI Ki (V/rad)", self.ki)
+        plant_form.addRow("PI Kp [V s/rad]", self.kp)
+        plant_form.addRow("PI Ki [V/rad]", self.ki)
         self.apply_gains = QPushButton("Apply gains")
         self.apply_gains.clicked.connect(self._apply_gains)
         plant_form.addRow(self.apply_gains)

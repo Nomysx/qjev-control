@@ -12,6 +12,7 @@ from app.diagnostics.qjev_client import QJevOllamaClient
 from app.diagnostics.service import DiagnosticRequest, DiagnosticService
 from app.simulation.room import HEATER_OPTIONS, HEATER_QUESTION, RoomSettings, RoomSimulation
 from app.ui.autoscale import YAutoRange, plot_at
+from app.ui.axes import bracket_axes
 
 
 def number(value, low, high, suffix="", step=1, decimals=1):
@@ -148,7 +149,7 @@ class RoomPanel(QWidget):
                 ("01 ROOM TEMPERATURE", "Temperature", "°C"),
                 ("02 HEATER ON / OFF", "Heater", ""),
                 ("03 HEAT FLOW", "Power", "W"))):
-            plot = self.canvas.addPlot(row=index, col=0, title=title)
+            plot = self.canvas.addPlot(row=index, col=0, title=title, axisItems=bracket_axes())
             plot.setLabel("left", label, units=units)
             plot.setLabel("bottom", "Simulation time", units="min")
             plot.showGrid(x=True, y=True, alpha=0.2)
