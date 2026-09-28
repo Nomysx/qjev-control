@@ -5,12 +5,10 @@ Desktop lab for two control use cases that use the QJev language model through a
 - **Motor:** a simulated DC motor speed loop with injectable faults. A deterministic residual detector finds faults; QJev chooses which of nine fault hypotheses explains them. QJev never acts on the motor.
 - **Room temperature:** a simulated room where QJev is the controller and switches the heater ON or OFF (bang-bang with hysteresis).
 
-The **How it works** tab shows the block diagrams, equations and the exact prompts sent to the model.
-
 ## Requirements
 
 - Python 3.11+
-- [Ollama](https://ollama.com) running locally, with the model installed (check with `ollama list`). Default model: `qjev-0.8b:latest`. Model card: [QJev3.5-0.8B-GGUF](https://huggingface.co/ZY-Lee4/QJev3.5-0.8B-GGUF).
+- [Ollama](https://ollama.com) running locally, with the model installed (check with `ollama list`). Default recomended model: `qjev-0.8b:latest`. Model card: [QJev3.5-0.8B-GGUF](https://huggingface.co/ZY-Lee4/QJev3.5-0.8B-GGUF).
 
 The simulations run without Ollama; only model decisions need it.
 
@@ -66,7 +64,7 @@ app/ui/              PySide6 windows, plots, How it works tab
 
 ## Limitations
 
-- Model scores are normalized token probabilities, not calibrated fault probabilities.
+- Model scores are normalized token probabilities.
 - The model is small and sensitive to wording; it can misclassify, especially early in a transient. Its answers are shown and logged as they are; nothing replaces a wrong answer.
 - Load and friction at a single steady speed are hard to tell apart. Change the target speed to add information.
 - Detector thresholds are tuned for the default plant and noise; retune them if those change substantially.
