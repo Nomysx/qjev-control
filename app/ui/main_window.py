@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
         self._model_check_worker = None
         self._model_check_pool = QThreadPool.globalInstance()
         self.event_count = 0
-        self.setWindowTitle("Control Lab | Motor and Room Temperature")
+        self.setWindowTitle("QJEV CONTROL")
         self.resize(1680, 1000)
         self.setMinimumSize(1200, 760)
         self.setStyleSheet(STYLE)

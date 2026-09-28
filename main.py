@@ -34,7 +34,7 @@ def main() -> int:
     from PySide6.QtWidgets import QApplication
     from app.ui.main_window import MainWindow
     application = QApplication(sys.argv[:1])
-    application.setApplicationName("QJev Motor Lab")
+    application.setApplicationName("QJEV CONTROL")
     window = MainWindow(config, args.scenario, model_enabled=not args.no_qjev)
     window.show()
     return application.exec()
