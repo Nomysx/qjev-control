@@ -1,6 +1,6 @@
 # QJev Control Lab
 
-Desktop lab for two control experiments that use the QJev language model through a local Ollama server:
+Desktop lab for two control use cases that use the QJev language model through a local Ollama server:
 
 - **Motor:** a simulated DC motor speed loop with injectable faults. A deterministic residual detector finds faults; QJev chooses which of nine fault hypotheses explains them. QJev never acts on the motor.
 - **Room temperature:** a simulated room where QJev is the controller and switches the heater ON or OFF (bang-bang with hysteresis).
@@ -27,7 +27,7 @@ python main.py
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `--scenario` | `sensor_bias` | Motor experiment loaded at start |
+| `--scenario` | `sensor_bias` | Motor use case loaded at start |
 | `--ollama-url` | `http://127.0.0.1:11434` | Ollama server |
 | `--model` | `qjev-0.8b:latest` | Ollama model tag |
 | `--readout` | `letters` | `letters`: one prompt with lettered options, asked in given and reversed order. `legacy_yes_no`: one Yes/No prompt per option |

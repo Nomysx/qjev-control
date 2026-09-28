@@ -1,4 +1,4 @@
-"""How it works: signal-flow diagrams, equations and the exact model requests of both experiments."""
+"""How it works: signal-flow diagrams, equations and the exact model requests of both use cases."""
 
 from dataclasses import asdict
 from html import escape
@@ -254,7 +254,7 @@ class ExplainPanel(QWidget):
             self.motor_prompt.show_state(diagnostic_context(motor.last_features),
                                          f"Preview from the latest features at t = {motor.time:.2f} s. Nothing has been sent yet.")
         else:
-            self.motor_prompt.show_state("", "Start the motor experiment to see the state text the model receives.")
+            self.motor_prompt.show_state("", "Start the motor use case to see the state text the model receives.")
 
         self.room_loop.set_values({
             "target": f"{room.settings.target:.1f} °C", "heater": "ON" if room.heater else "OFF",

@@ -13,7 +13,7 @@ def main() -> int:
     parser.add_argument("--model", default="qjev-0.8b:latest")
     parser.add_argument("--readout", choices=("letters", "legacy_yes_no"), default="letters")
     parser.add_argument("--no-qjev", action="store_true", help="Start with deterministic diagnostics only")
-    parser.add_argument("--headless", action="store_true", help="Run a numerical experiment without Qt or inference")
+    parser.add_argument("--headless", action="store_true", help="Run a numerical use case without Qt or inference")
     parser.add_argument("--duration", type=float, default=20)
     parser.add_argument("--export", help="Export CSV, metadata JSON and diagnostic JSONL")
     parser.add_argument("--seed", type=int)

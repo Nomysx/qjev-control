@@ -189,7 +189,7 @@ def motor_loop(config: Configuration) -> tuple[tuple[float, float], list[Block],
               930, 110, 170, 90),
         Block("sensors", f"<b>Sensors</b> ({config.timing.control_hz} Hz)<br>encoder ω<sub>m</sub>, current i<sub>m</sub>"
                          "<br>+ Gaussian noise", 750, 300, 190, 70, "sensor"),
-        Block("faults", "<b>Fault injector</b> (Faults tab or experiment schedule)", 730, 10, 370, 42, "fault"),
+        Block("faults", "<b>Fault injector</b> (Faults tab or use case schedule)", 730, 10, 370, 42, "fault"),
     ]
     links = [
         Link(((0, 155), "ramp.w"), "target <i>n</i>*", (45, 150), value="target"),
